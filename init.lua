@@ -1,13 +1,13 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
+vim.opt.termguicolors = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.softtabstop = 2
+vim.opt.termguicolors = true
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
-
+vim.g.have_nerd_font = true
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -16,7 +16,7 @@ vim.g.have_nerd_font = false
 -- Make line numbers default
 vim.o.number = true
 vim.o.relativenumber = true
-
+-- Set relative in normal and normal lines in insert mode
 vim.api.nvim_create_autocmd({ "InsertEnter" }, {
 	callback = function()
 		vim.o.relativenumber = false
@@ -82,7 +82,7 @@ vim.o.inccommand = "split"
 vim.o.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.o.scrolloff = 10
+vim.o.scrolloff = 20
 
 -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s)
@@ -340,6 +340,7 @@ require("lazy").setup({
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
 					},
+					"harpoon",
 				},
 			})
 
@@ -810,29 +811,6 @@ require("lazy").setup({
 			signature = { enabled = true },
 		},
 	},
-
-	{ -- You can easily change to a different colorscheme.
-		-- Change the name of the colorscheme plugin below, and then
-		-- change the command in the config to whatever the name of that colorscheme is.
-		--
-		-- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-		"folke/tokyonight.nvim",
-		priority = 1000, -- Make sure to load this before all the other start plugins.
-		config = function()
-			---@diagnostic disable-next-line: missing-fields
-			require("tokyonight").setup({
-				styles = {
-					comments = { italic = false }, -- Disable italics in comments
-				},
-			})
-
-			-- Load the colorscheme here.
-			-- Like many other themes, this one has different styles, and you could load
-			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("tokyonight-night")
-		end,
-	},
-
 	-- Highlight todo, notes, etc in comments
 	{
 		"folke/todo-comments.nvim",
@@ -920,7 +898,6 @@ require("lazy").setup({
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
 
-	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
 	-- place them in the correct locations.
 
@@ -968,5 +945,7 @@ require("lazy").setup({
 	},
 })
 
+vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
+vim.api.nvim_set_hl(0, "FloatBorder", { link = "Normal" })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
