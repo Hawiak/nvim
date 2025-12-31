@@ -15,13 +15,6 @@ return {
 
 			vim.keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle nvim-tree" })
 
-			local last_tree_focus = 0
-			vim.api.nvim_create_autocmd("BufEnter", {
-				callback = function()
-					vim.cmd("NvimTreeClose")
-				end,
-			})
-
 			vim.api.nvim_create_autocmd("VimEnter", {
 				callback = function()
 					local line_count = vim.api.nvim_buf_line_count(0)
