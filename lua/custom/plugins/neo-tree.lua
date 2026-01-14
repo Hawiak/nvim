@@ -6,7 +6,10 @@ return {
 		},
 		config = function()
 			require("nvim-tree").setup({
-
+				view = {
+					number = true,
+					relativenumber = true,
+				},
 				hijack_directories = {
 					enable = true,
 					auto_open = false,
