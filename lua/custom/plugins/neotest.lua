@@ -14,6 +14,9 @@ return {
 					jestCommand = "npm test --",
 					jestConfigFile = "jest.config.ts",
 					env = { CI = true },
+					jestArguments = {
+						"--runInBand",
+					},
 					cwd = function()
 						return vim.fn.getcwd()
 					end,
@@ -22,6 +25,16 @@ return {
 		}
 	end,
 	keys = {
+		{
+			"<leader>td",
+			function()
+				require("neotest").run.run({
+					strategy = "dap",
+					suite = false,
+				})
+			end,
+			desc = "Debug nearest test",
+		},
 		{
 			"<leader>tt",
 			function()
