@@ -16,7 +16,8 @@ return {
 				},
 			})
 
-			vim.keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle nvim-tree" })
+			vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "Toggle tree" })
+			vim.keymap.set("n", "<leader>f", ":NvimTreeFindFile<CR>", { desc = "Reveal current file in tree" })
 
 			vim.api.nvim_create_autocmd("VimEnter", {
 				callback = function()
