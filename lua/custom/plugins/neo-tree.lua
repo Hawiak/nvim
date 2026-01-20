@@ -14,6 +14,9 @@ return {
 					enable = true,
 					auto_open = false,
 				},
+				filters = {
+					git_ignored = false,
+				},
 			})
 
 			vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "Toggle tree" })
