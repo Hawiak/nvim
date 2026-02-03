@@ -73,8 +73,17 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	"nmac427/guess-indent.nvim",
-
+	{
+		"nmac427/guess-indent.nvim",
+		opts = {
+			filetype_exclude = {
+				"javascript",
+				"javascriptreact",
+				"typescript",
+				"typescriptreact",
+			},
+		},
+	},
 	{
 		"lewis6991/gitsigns.nvim",
 		opts = {
@@ -136,13 +145,13 @@ require("lazy").setup({
 
 	{
 		"stevearc/conform.nvim",
-		event = { "BufWritePre" },
+		event = "BufWritePre",
 		cmd = { "ConformInfo" },
 		keys = {
 			{
 				"<leader>f",
 				function()
-					require("conform").format({ async = true, lsp_format = "fallback" })
+					require("conform").format({ timeout_ms = 500, lsp_format = "never" })
 				end,
 				mode = "",
 				desc = "[F]ormat buffer",
@@ -154,18 +163,21 @@ require("lazy").setup({
 				local disable_filetypes = { c = true, cpp = true }
 				if disable_filetypes[vim.bo[bufnr].filetype] then
 					return nil
-				else
-					return { timeout_ms = 500, lsp_format = "fallback" }
 				end
+
+				return {
+					timeout_ms = 500,
+					lsp_format = "never",
+				}
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				json = { "jq" },
-				jsonc = { "jq" },
-				javascript = { "prettierd", "prettier", stop_after_first = true },
-				typescript = { "prettierd", "prettier", stop_after_first = true },
-				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-				javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+				json = { "eslint", "prettier", stop_after_first = true },
+				jsonc = { "eslint", "prettier", stop_after_first = true },
+				javascript = { "eslint", "prettier", stop_after_first = true },
+				typescript = { "eslint", "prettier", stop_after_first = true },
+				typescriptreact = { "eslint", "prettier", stop_after_first = true },
+				javascriptreact = { "eslint", "prettier", stop_after_first = true },
 			},
 		},
 	},
@@ -283,4 +295,9 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 local keymaps_ok, _ = pcall(require, "config.keymaps")
 if not keymaps_ok then
 	vim.notify("config.keymaps not found", vim.log.levels.WARN)
+end
+
+local automations_ok, _ = pcall(require, "config.automations")
+if not automations_ok then
+	vim.notify("config.automations not found", vim.log.levels.WARN)
 end
