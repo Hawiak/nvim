@@ -12,7 +12,7 @@ vim.keymap.set("n", "<leader>d", function()
 	vim.cmd("lopen")
 end, { desc = "Open [D]iagnostics" })
 
-vim.keymap.set("n", "<C-i>", function()
+vim.keymap.set("n", "<C-I>", function()
 	vim.lsp.buf.code_action({
 		apply = true,
 		context = {
@@ -76,3 +76,9 @@ map("n", "<leader>bn", "<Cmd>BufferOrderByName<CR>", opts)
 map("n", "<leader>bd", "<Cmd>BufferOrderByDirectory<CR>", opts)
 map("n", "<leader>bl", "<Cmd>BufferOrderByLanguage<CR>", opts)
 map("n", "<leader>bw", "<Cmd>BufferOrderByWindowNumber<CR>", opts)
+
+map("gxd", function()
+	require("telescope.builtin").lsp_definitions({
+		jump_type = "vsplit",
+	})
+end, "[G]oto[ [X]vertical [D]efinition")
