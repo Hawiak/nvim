@@ -1,22 +1,14 @@
-local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
-local result = handle:read("*a")
-handle:close()
-
-local is_dark = result:match("Dark") ~= nil
-
--- Decide flavour and background based on appearance
-local flavour = is_dark and "macchiato" or "latte"
 return {
-
 	"catppuccin/nvim",
 	name = "catppuccin",
 	priority = 1000,
 	lazy = false,
 	config = function()
 		vim.opt.termguicolors = true
+		vim.o.background = "dark"
 
 		require("catppuccin").setup({
-			flavour = flavour,
+			flavour = "macchiato", -- of "mocha" (nog donkerder)
 			transparent_background = false,
 			integrations = {
 				treesitter = true,

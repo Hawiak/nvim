@@ -291,13 +291,6 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 	end,
 })
 
--- Load custom keymaps if they exist
-local keymaps_ok, _ = pcall(require, "config.keymaps")
-if not keymaps_ok then
-	vim.notify("config.keymaps not found", vim.log.levels.WARN)
-end
-
-local automations_ok, _ = pcall(require, "config.automations")
-if not automations_ok then
-	vim.notify("config.automations not found", vim.log.levels.WARN)
-end
+-- Load custom keymaps and automations
+require("config.keymaps")
+require("config.automations")

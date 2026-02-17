@@ -1,3 +1,4 @@
+local M = {}
 require("mini.surround").setup({
 	custom_surroundings = {
 		p = {
@@ -5,3 +6,4 @@ require("mini.surround").setup({
 		},
 	},
 })
+return M
