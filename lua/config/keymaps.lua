@@ -74,4 +74,28 @@ map("n", "gxd", function()
 	})
 end, { desc = "Goto definition (vsplit)" })
 
+map("n", "<leader>bn", "<Cmd>BufStackNext<CR>")
+map("n", "<leader>bp", "<Cmd>BufStackPrev<CR>")
+map("n", "<leader>bl", "<Cmd>BufStackList<CR>")
+map("n", "<leader>br", "<Cmd>BufReopen<CR>")
+map("n", "<leader>bt", "<Cmd>BufStackTelescope<CR>")
+-- Copy path of current file to clipboard
+vim.api.nvim_create_user_command("Cppath", function()
+	local path = vim.fn.expand("%:p")
+	vim.fn.setreg("+", path)
+	vim.notify('Copied "' .. path .. '" to the clipboard!')
+end, {})
+-- Close all buffers except neo-tree
+vim.keymap.set("n", "<leader>ba", function()
+	local current = vim.api.nvim_get_current_buf()
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(buf) then
+			local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
+			if ft ~= "neo-tree" then
+				-- Gebruik barbar's delete command zodat de tabbar netjes update
+				vim.cmd("BufferClose " .. buf)
+			end
+		end
+	end
+end, { desc = "Close all buffers (except neo-tree)" })
 return M
