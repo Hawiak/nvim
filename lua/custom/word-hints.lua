@@ -8,7 +8,8 @@ local ns = vim.api.nvim_create_namespace("word_hints")
 local config = {
 	enabled = true,
 	debounce_ms = 50,
-	max_words = 20,
+	-- Hoeveel regels boven/onder de cursor hints tonen
+	context_lines = 2,
 	-- "all" = elk woord, "power" = alleen veelvouden van 5
 	mode = "all",
 	-- Aparte highlight groups voor vooruit en achteruit
@@ -65,7 +66,6 @@ local function render()
 		return
 	end
 
-	-- Gebruik buf-specifieke filetype/buftype om race conditions te vermijden
 	local ft = vim.bo[buf].filetype
 	local bt = vim.bo[buf].buftype
 
@@ -99,12 +99,12 @@ local function render()
 		})
 	end
 
-	-- ── huidige regel ────────────────────────────────────────────────────────
+	-- ── huidige regel: w vooruit, b achteruit ────────────────────────────────
 	local starts = word_starts(row)
 
 	local fwd_count = 0
 	for _, wc in ipairs(starts) do
-		if wc > col and fwd_count < config.max_words then
+		if wc > col then
 			fwd_count = fwd_count + 1
 			place(row, wc, fwd_count, config.forward_hl, config.forward_fmt)
 		end
@@ -113,43 +113,27 @@ local function render()
 	local bwd_count = 0
 	for i = #starts, 1, -1 do
 		local wc = starts[i]
-		if wc < col and bwd_count < config.max_words then
+		if wc < col then
 			bwd_count = bwd_count + 1
 			place(row, wc, bwd_count, config.backward_hl, config.backward_fmt)
 		end
 	end
 
-	-- ── regels onder (w overflow) ────────────────────────────────────────────
-	if fwd_count < config.max_words then
-		local total = vim.api.nvim_buf_line_count(buf)
-		for lnum = row + 1, math.min(total - 1, row + 30) do
-			if fwd_count >= config.max_words then
-				break
-			end
-			for _, wc in ipairs(word_starts(lnum)) do
-				if fwd_count >= config.max_words then
-					break
-				end
-				fwd_count = fwd_count + 1
-				place(lnum, wc, fwd_count, config.forward_hl, config.forward_fmt)
-			end
+	-- ── regels onder: w telt door ─────────────────────────────────────────────
+	local total = vim.api.nvim_buf_line_count(buf)
+	for lnum = row + 1, math.min(total - 1, row + config.context_lines) do
+		for _, wc in ipairs(word_starts(lnum)) do
+			fwd_count = fwd_count + 1
+			place(lnum, wc, fwd_count, config.forward_hl, config.forward_fmt)
 		end
 	end
 
-	-- ── regels boven (b overflow) ────────────────────────────────────────────
-	if bwd_count < config.max_words then
-		for lnum = row - 1, math.max(0, row - 30), -1 do
-			if bwd_count >= config.max_words then
-				break
-			end
-			local ls = word_starts(lnum)
-			for i = #ls, 1, -1 do
-				if bwd_count >= config.max_words then
-					break
-				end
-				bwd_count = bwd_count + 1
-				place(lnum, ls[i], bwd_count, config.backward_hl, config.backward_fmt)
-			end
+	-- ── regels boven: b telt door ─────────────────────────────────────────────
+	for lnum = row - 1, math.max(0, row - config.context_lines), -1 do
+		local ls = word_starts(lnum)
+		for i = #ls, 1, -1 do
+			bwd_count = bwd_count + 1
+			place(lnum, ls[i], bwd_count, config.backward_hl, config.backward_fmt)
 		end
 	end
 end

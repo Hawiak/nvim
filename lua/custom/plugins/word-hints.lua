@@ -5,7 +5,10 @@ return {
 	name = "word-hints",
 	lazy = false,
 	config = function()
+		vim.api.nvim_set_hl(0, "WordHintFwd", { fg = "#3a3a3a", ctermfg = 238 })
+		vim.api.nvim_set_hl(0, "WordHintBwd", { fg = "#2a2a2a", ctermfg = 237 })
 		require("custom.word-hints").setup({
+			context_lines = 2,
 			mode = "all",
 			max_words = 20,
 			debounce_ms = 50,
