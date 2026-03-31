@@ -1,5 +1,5 @@
 -- lua/custom/word-hints.lua
--- Shows virtual text with W/B jump counts (like relative line numbers, but horizontal)
+-- Ghost text met w/b jump counts, zoals relative line numbers maar horizontaal.
 
 local M = {}
 
@@ -9,13 +9,29 @@ local config = {
 	enabled = true,
 	debounce_ms = 50,
 	max_words = 20,
-	forward_hl = "Comment",
-	backward_hl = nil, -- falls back to forward_hl
-	-- "all" = every word, "power" = only multiples of 5
+	-- "all" = elk woord, "power" = alleen veelvouden van 5
 	mode = "all",
+	-- Aparte highlight groups voor vooruit en achteruit
+	forward_hl = "Comment",
+	backward_hl = "DiagnosticHint",
 	forward_fmt = "%d",
 	backward_fmt = "%d",
+	-- Filetypes/buftypes om over te skippen
+	excluded_filetypes = { "neo-tree", "NvimTree", "alpha", "dashboard", "snacks" },
+	excluded_buftypes = { "nofile", "terminal", "prompt" },
 }
+
+-- ── word boundary detection (w/b semantics, niet W/B) ────────────────────────
+
+local function chartype(c)
+	if c:match("[a-zA-Z0-9_]") then
+		return "word"
+	elseif c:match("%s") then
+		return "space"
+	else
+		return "punct"
+	end
+end
 
 local function word_starts(lnum)
 	local line = vim.api.nvim_buf_get_lines(0, lnum, lnum + 1, false)[1]
@@ -23,16 +39,18 @@ local function word_starts(lnum)
 		return {}
 	end
 	local positions = {}
-	local in_word = false
+	local prev = "space"
 	for i = 1, #line do
-		local ws = line:sub(i, i):match("%s") ~= nil
-		if not ws and not in_word then
+		local cur = chartype(line:sub(i, i))
+		if cur ~= "space" and (prev == "space" or prev ~= cur) then
 			positions[#positions + 1] = i - 1
 		end
-		in_word = not ws
+		prev = cur
 	end
 	return positions
 end
+
+-- ── rendering ────────────────────────────────────────────────────────────────
 
 local timer = nil
 
@@ -47,10 +65,26 @@ local function render()
 		return
 	end
 
+	-- Gebruik buf-specifieke filetype/buftype om race conditions te vermijden
+	local ft = vim.bo[buf].filetype
+	local bt = vim.bo[buf].buftype
+
+	for _, v in ipairs(config.excluded_filetypes) do
+		if ft == v then
+			return
+		end
+	end
+	for _, v in ipairs(config.excluded_buftypes) do
+		if bt == v then
+			return
+		end
+	end
+	if ft == "" then
+		return
+	end
+
 	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 	row = row - 1
-
-	local bwd_hl = config.backward_hl or config.forward_hl
 
 	local function place(lnum, wcol, count, hl, fmt)
 		local show = config.mode == "all" or (count % 5 == 0)
@@ -65,8 +99,9 @@ local function render()
 		})
 	end
 
-	-- current line: forward
+	-- ── huidige regel ────────────────────────────────────────────────────────
 	local starts = word_starts(row)
+
 	local fwd_count = 0
 	for _, wc in ipairs(starts) do
 		if wc > col and fwd_count < config.max_words then
@@ -75,17 +110,16 @@ local function render()
 		end
 	end
 
-	-- current line: backward
 	local bwd_count = 0
 	for i = #starts, 1, -1 do
 		local wc = starts[i]
 		if wc < col and bwd_count < config.max_words then
 			bwd_count = bwd_count + 1
-			place(row, wc, bwd_count, bwd_hl, config.backward_fmt)
+			place(row, wc, bwd_count, config.backward_hl, config.backward_fmt)
 		end
 	end
 
-	-- lines below: forward overflow
+	-- ── regels onder (w overflow) ────────────────────────────────────────────
 	if fwd_count < config.max_words then
 		local total = vim.api.nvim_buf_line_count(buf)
 		for lnum = row + 1, math.min(total - 1, row + 30) do
@@ -102,7 +136,7 @@ local function render()
 		end
 	end
 
-	-- lines above: backward overflow
+	-- ── regels boven (b overflow) ────────────────────────────────────────────
 	if bwd_count < config.max_words then
 		for lnum = row - 1, math.max(0, row - 30), -1 do
 			if bwd_count >= config.max_words then
@@ -114,7 +148,7 @@ local function render()
 					break
 				end
 				bwd_count = bwd_count + 1
-				place(lnum, ls[i], bwd_count, bwd_hl, config.backward_fmt)
+				place(lnum, ls[i], bwd_count, config.backward_hl, config.backward_fmt)
 			end
 		end
 	end
@@ -134,6 +168,8 @@ local function schedule_render()
 	timer:start(config.debounce_ms, 0, vim.schedule_wrap(render))
 end
 
+-- ── public API ───────────────────────────────────────────────────────────────
+
 function M.toggle()
 	config.enabled = not config.enabled
 	if not config.enabled then
@@ -148,6 +184,7 @@ function M.setup(opts)
 	config = vim.tbl_deep_extend("force", config, opts or {})
 
 	local grp = vim.api.nvim_create_augroup("WordHints", { clear = true })
+
 	vim.api.nvim_create_autocmd(
 		{ "CursorMoved", "BufEnter", "WinEnter", "ModeChanged" },
 		{ group = grp, callback = schedule_render }
