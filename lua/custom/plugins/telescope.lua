@@ -1,6 +1,6 @@
 return { -- Fuzzy Finder (files, lsp, etc)
 	"nvim-telescope/telescope.nvim",
-	tag = "*",
+	branch = "master",
 	event = "VimEnter",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
@@ -27,8 +27,11 @@ return { -- Fuzzy Finder (files, lsp, etc)
 		-- See `:help telescope` and `:help telescope.setup()`
 		require("telescope").setup({
 			defaults = {
-				-- Disable treesitter highlighting in previewer to avoid errors
-				buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
+				-- Disable nvim-treesitter integration in previewer; it uses APIs
+				-- removed in newer nvim-treesitter. Native vim treesitter still works.
+				preview = {
+					treesitter = false,
+				},
 			},
 			extensions = {
 				["ui-select"] = {
