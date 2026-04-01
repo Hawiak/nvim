@@ -33,13 +33,6 @@ end, { desc = "Diagnostics list" })
 
 -- ===== LSP =====
 
-map("n", "<C-I>", function()
-	vim.lsp.buf.code_action({
-		apply = true,
-		context = { only = { "source.organizeImports" } },
-	})
-end, { desc = "Organize imports" })
-
 -- ===== TROUBLE =====
 
 map("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>")
