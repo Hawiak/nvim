@@ -31,6 +31,11 @@ map("n", "<leader>d", function()
 	vim.cmd("lopen")
 end, { desc = "Diagnostics list" })
 
+map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+map("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+map("n", "]e", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Next error" })
+map("n", "[e", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Prev error" })
+
 -- ===== LSP =====
 
 -- ===== TROUBLE =====

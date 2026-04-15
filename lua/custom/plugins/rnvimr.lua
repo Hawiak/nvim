@@ -17,6 +17,25 @@ return {
 		}
 	end,
 	config = function()
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "rnvimr",
+			callback = function(ev)
+				vim.keymap.set("t", "<Esc>", "<C-\\><C-n><cmd>RnvimrToggle<CR>", { buffer = ev.buf, silent = true })
+				vim.keymap.set(
+					"t",
+					"<Esc><Esc>",
+					"<C-\\><C-n><cmd>RnvimrToggle<CR>",
+					{ buffer = ev.buf, silent = true }
+				)
+				local winid = vim.api.nvim_get_current_win()
+				local cfg = vim.api.nvim_win_get_config(winid)
+				if cfg.relative ~= "" then
+					cfg.border = "rounded"
+					vim.api.nvim_win_set_config(winid, cfg)
+				end
+			end,
+		})
+
 		vim.api.nvim_create_user_command("HarpoonAdd", function(opts)
 			local list = require("harpoon"):list()
 			local item = list.config.create_list_item(list.config, opts.args)

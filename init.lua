@@ -265,6 +265,20 @@ require("lazy").setup({
 vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 vim.api.nvim_set_hl(0, "FloatBorder", { link = "Normal" })
 
+-- TypeScript/JavaScript organize imports on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+	callback = function(args)
+		local clients = vim.lsp.get_clients({ bufnr = args.buf, name = "ts_ls" })
+		for _, client in ipairs(clients) do
+			client:request_sync("workspace/executeCommand", {
+				command = "_typescript.organizeImports",
+				arguments = { vim.api.nvim_buf_get_name(args.buf) },
+			}, 3000, args.buf)
+		end
+	end,
+})
+
 -- Go-specific autocommands
 vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*.go",
