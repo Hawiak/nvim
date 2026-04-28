@@ -49,16 +49,18 @@ else
   pip3 install --break-system-packages pynvim
 fi
 
-# ── Nerd Font ────────────────────────────────────────────────────────────────
-if brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
-  info "Nerd Font already installed"
+## ── Nerd Font ────────────────────────────────────────────────────────────────
+FONT_PATH="$HOME/Library/Fonts/JetBrainsMonoNLNerdFont-Regular.ttf"
+
+if [ -f "$FONT_PATH" ]; then
+  info "JetBrainsMono Nerd Font already installed (manual or brew)"
+elif brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
+  info "Nerd Font already installed via Homebrew"
 else
   warn "Installing JetBrainsMono Nerd Font (required for icons)…"
   brew install --cask font-jetbrains-mono-nerd-font
   warn "Set your terminal font to 'JetBrainsMono Nerd Font' after install."
-fi
-
-# ── Final notes ──────────────────────────────────────────────────────────────
+fi 
 echo ""
 info "All system dependencies installed."
 echo ""
