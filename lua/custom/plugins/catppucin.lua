@@ -10,6 +10,7 @@ return {
 		require("catppuccin").setup({
 			flavour = "macchiato", -- of "mocha" (nog donkerder)
 			transparent_background = false,
+			term_colors = true,
 			integrations = {
 				treesitter = true,
 				native_lsp = {

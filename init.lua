@@ -1,3 +1,10 @@
+-- managed-nvim bootstrap — must be before lazy.setup()
+local _managed_runtime = vim.env.MANAGED_NVIM_RUNTIME
+if _managed_runtime and _managed_runtime ~= "" then
+  vim.opt.rtp:prepend(_managed_runtime)
+  require("managed").setup()
+end
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.opt.tabstop = 2
@@ -172,6 +179,7 @@ require("lazy").setup({
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
+				python = { "ruff_organize_imports", "ruff_format" },
 				json = { "eslint", "prettier", stop_after_first = true },
 				jsonc = { "eslint", "prettier", stop_after_first = true },
 				javascript = { "eslint", "prettier", stop_after_first = true },
@@ -298,12 +306,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	end,
 })
 
-vim.api.nvim_create_autocmd("BufWritePost", {
-	pattern = { "*.go" },
-	callback = function()
-		vim.cmd("LspRestart gopls")
-	end,
-})
 
 -- Load custom keymaps and automations
 require("config.keymaps")

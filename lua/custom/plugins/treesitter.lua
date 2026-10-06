@@ -19,6 +19,7 @@ return {
 				"go",
 				"typescript",
 				"javascript",
+				"python",
 				"tsx",
 				"json",
 				"yaml",
